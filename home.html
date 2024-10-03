@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opzioni di Pagamento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 120vh;
+            flex-direction: column;
+        }
+        .container {
+            background-color: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            max-width: 400px;
+            width: 100%;
+            padding: 30px;
+            text-align: center;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .payment-option {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            transition: box-shadow 0.3s ease;
+            background-color: #f9f9f9;
+        }
+        .payment-option:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .payment-option h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .payment-form {
+            margin-top: 20px;
+        }
+        .payment-form input, .payment-form select {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            transition: border 0.3s ease;
+        }
+        .payment-form input:focus, .payment-form select:focus {
+            border: 1px solid #28a745;
+            outline: none;
+        }
+        .payment-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .payment-form button:hover {
+            background-color: #218838;
+        }
+        .paypal-button {
+            display: inline-block;
+            width: calc(100% - 24px);
+            background-color: #0070ba;
+            color: white;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 16px;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .paypal-button:hover {
+            background-color: #005ea6;
+        }
+        .card-element {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            transition: border 0.3s ease;
+        }
+        .card-element:focus {
+            border: 1px solid #28a745;
+        }
+        .credit-card-container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
+        }
+        .credit-card-header {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .card-icons {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .card-icons img {
+            width: 40px;
+            margin: 0 5px;
+        }
+        #custom-amount {
+            display: none;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            display: none;
+        }
+        .success-message {
+            color: green;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Scegli il Metodo di Pagamento</h1>
+
+        <!-- Opzione di Pagamento con PayPal -->
+        <div class="payment-option">
+            <h2>Paga con PayPal</h2>
+            <a class="paypal-button" href="https://www.paypal.me/NaomiLevi6969" target="_blank">Paga con PayPal</a>
+        </div>
+
+        <!-- Opzione di Pagamento con Carta -->
+        <div class="payment-option">
+            <h2>Paga con Carta di Credito</h2>
+
+            <div class="credit-card-container">
+                <div class="credit-card-header">Inserisci i dettagli della tua carta</div>
+
+                <div class="card-icons">
+                    <img src="https://img.icons8.com/color/48/000000/visa.png" alt="Visa">
+                    <img src="https://img.icons8.com/color/48/000000/mastercard.png" alt="MasterCard">
+                    <img src="https://img.icons8.com/color/48/000000/amex.png" alt="American Express">
+                </div>
+
+                <div class="payment-form">
+                    <form id="payment-form">
+                        <label for="cardholder-name">Nome del Titolare:</label>
+                        <input type="text" id="cardholder-name" placeholder="Nome e Cognome" required>
+
+                        <label for="amount">Seleziona l'importo da Pagare (€):</label>
+                        <select id="amount" required>
+                            <option value="" disabled selected>Scegli un importo</option>
+                            <option value="10">10€</option>
+                            <option value="20">20€</option>
+                            <option value="50">50€</option>
+                            <option value="100">100€</option>
+                            <option value="custom">100€+</option>
+                        </select>
+
+                        <input type="number" id="custom-amount" placeholder="Inserisci un importo (€)" min="101" step="1">
+
+                        <div id="card-element" class="card-element"></div>
+
+                        <button type="submit" class="submit-button" id="submit-button">Paga Ora</button>
+
+                        <div class="error-message" id="error-message"></div>
+                        <div class="success-message" id="success-message"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var stripe = Stripe('pk_live_51Q5j4rDxMviVKQmrbaL5dtjdnxAjZLPTbF6SWHTctnr37M8833yS6OhR2t8cpt8dLTXizognwSvgFPp44D2YAfFT008HT1ziGZ'); // Inserisci la tua Publishable Key di Stripe
+        var elements = stripe.elements();
+
+        var card = elements.create('card');
+        card.mount('#card-element');
+
+        var form = document.getElementById('payment-form');
+        var cardholderName = document.getElementById('cardholder-name');
+        var amount = document.getElementById('amount');
+        var customAmount = document.getElementById('custom-amount');
+        var errorMessage = document.getElementById('error-message');
+        var successMessage = document.getElementById('success-message');
+        var submitButton = document.getElementById('submit-button');
+
+        amount.addEventListener('change', function() {
+            if (amount.value === 'custom') {
+                customAmount.style.display = 'block';
+            } else {
+                customAmount.style.display = 'none';
+                customAmount.value = '';
+            }
+        });
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Disabilita il pulsante durante il caricamento
+            submitButton.disabled = true;
+
+            // Verifica se l'importo selezionato è valido
+            var selectedAmount = amount.value === 'custom' ? parseInt(customAmount.value) : parseInt(amount.value);
+
+            if (isNaN(selectedAmount) || selectedAmount < 10) {
+                errorMessage.textContent = "Seleziona un importo valido.";
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                submitButton.disabled = false; // Riabilita il pulsante
+                return;
+            }
+
+            stripe.createPaymentMethod({
+                type: 'card',
+                card: card,
+                billing_details: {
+                    name: cardholderName.value,
+                },
+            }).then(function(result) {
+                if (result.error) {
+                    errorMessage.textContent = result.error.message;
+                    errorMessage.style.display = 'block'; // Mostra il messaggio di errore
+                    successMessage.style.display = 'none'; // Nascondi messaggio di successo
+                } else {
+                    // Invia il pagamento al server
+                    fetch('/process_payment.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            paymentMethodId: result.paymentMethod.id,
+                            amount: selectedAmount * 100 // Converto in centesimi
+                        })
+                    }).then(function(response) {
+                        return response.json();
+                    }).then(function(paymentResult) {
+                        if (paymentResult.error) {
+                            // Gestisci errori dal server
+                            errorMessage.textContent = paymentResult.error;
+                            errorMessage.style.display = 'block'; // Mostra il messaggio di errore
+                            successMessage.style.display = 'none'; // Nascondi messaggio di successo
+                        } else {
+                            // Pagamento riuscito
+                            successMessage.textContent = "Pagamento effettuato con successo!";
+                            successMessage.style.display = 'block'; // Mostra il messaggio di successo
+                            errorMessage.style.display = 'none'; // Nascondi messaggio di errore
+                            window.location.href = "/success.html"; // Reindirizza alla pagina di successo
+                        }
+                    }).catch(function(err) {
+                        errorMessage.textContent = "Errore di rete.";
+                        errorMessage.style.display = 'block'; // Mostra il messaggio di errore
+                    });
+                }
+            }).finally(function() {
+                // Riabilita il pulsante alla fine
+                submitButton.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
